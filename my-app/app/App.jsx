@@ -13,9 +13,9 @@ import { db } from "./firebase";
 import { collection, getDocs, query, where } from "firebase/firestore";
 export default function LandingPage() {
   const contact = [
-    { name: "Giga Don", msg: "Peene Chale",time:Date() },
-    { name: "Dimli", msg: "Fookne Chale" ,time:Date()},
-    { name: "Simlim", msg: "Tahalne Chale" ,time:Date()}
+    { name: "Giga Don", msg: "Peene Chale", time: Date() },
+    { name: "Dimli", msg: "Fookne Chale", time: Date() },
+    { name: "Simlim", msg: "Tahalne Chale", time: Date() }
   ];
   const [user, setUser] = useState("");
   // const userContext=useUser();
@@ -26,7 +26,7 @@ export default function LandingPage() {
   //   setUser(userContext);
   // },[userContext])
   // const {user,setUser}=useContext(UserContext);
-  const [chats,setChats]=React.useState(null);
+  const [chats, setChats] = React.useState([]);
   const [loading, setLoading] = useState(true);
   const [isRouterReady, setIsRouterReady] = useState(false);
 
@@ -48,71 +48,62 @@ export default function LandingPage() {
         });
       }
     }
-
-    getDocumentsByQuery("Users", "email", "==", user?.user?.email);
+    if (user != null)
+      getDocumentsByQuery("Users", "email", "==", user?.user?.email);
   }, [user]);
-console.log(user.uid)
-  useEffect(()=>{
+  // console.log(user.uid)
+  useEffect(() => {
     async function getDocumentsWithUserId(userId) {
       const collectionRef = collection(db, "Chats"); // Replace with your collection name
-      
+
       // Create a query to find documents where participants array contains the userId
       const q = query(collectionRef, where("participants", "array-contains", userId));
-      
+
       try {
         // Execute the query
         const querySnapshot = await getDocs(q);
-        
+
         // Get the total count of documents
         const totalDocuments = querySnapshot.size;
-        setChats(querySnapshot);
         console.log(`Total documents with user ID ${userId}:`, totalDocuments);
-        
+        const newChats = [];
         // Optionally, loop through documents if you need to access them
         querySnapshot.forEach((doc) => {
           console.log(doc.id, " => ", doc.data());
+          newChats.push({ "data": doc.data(), "chatId": doc.id });
+          // setChats(...chats,doc.data().chat);
         });
-    
+        // setChats(querySnapshot);
+        setChats((prevChats) => [...prevChats, ...newChats]);
         return totalDocuments;
       } catch (error) {
         console.error("Error fetching documents:", error);
       }
     }
-    
-    // Example usage
+
+
     const userId = user?.uid; // Replace with the user ID you're searching for
     getDocumentsWithUserId(userId);
-    // async function getChats(collectionName, field, operator, value) {
-    //   if (value != undefined) {
-    //     console.log(value);
-    //     const q = query(
-    //       collection(db, collectionName),
-    //       where(field, operator, value)
-    //     );
-    //     console.log(query);
-    //     const querySnapshot = await getDocs(q);
-    //     querySnapshot.forEach((doc) => {
-    //       console.log(doc.id, " => ", doc.data());
-    //       setPlayerInfo(doc.data());
-    //     });
-    //   }
-    // }
 
-    // getChats("Chats", "participants", "==", user?.user?.email);
-    
-  },[user])
 
-  function selectContact(index) {
-    setCurrChat(index);
+  }, [user])
+  const [profileId, setProfileId] = React.useState("");
+  function selectContact(id, chatId) {
+    setProfileId(id)
+    setCurrChat(chatId);
   }
-  const [refinedChat,setRefinedChat]=useState(null);
-  useEffect(()=>{
-    if(chats!=null && chats.length>0)
-  {  chats.map((obj)=>{
-    console.log(obj);
-      setRefinedChat({...refinedChat,obj})
-    })}
-  },[chats])
+  const [refinedChat, setRefinedChat] = useState([]);
+  // useEffect(()=>{
+  //   if(chats!=null)
+  // {  
+  //   console.log(chats);
+  //   chats.map((obj)=>{
+  //   console.log(obj);
+  //   if(obj!==undefined)
+  //     setRefinedChat([...refinedChat,obj])
+  //   })
+  // }
+  // },[chats])
   const auth = getAuth();
   // const [user, setUser] = useState("");
 
@@ -143,17 +134,25 @@ console.log(user.uid)
 
   //   getDocumentsByQuery("Users", "email", "==", user?.email);
   // }, [user]);
-
+  console.log(chats);
+  console.log(refinedChat);
   return (
     <div className="h-screen w-screen flex flex-col flex-1">
       <UserProvider user={user} setUser={setUser}>
-      <Navbar />
+        <Navbar />
 
-      <Split sizes={[30, 70]} direction="horizontal" className="flex h-full ">
-        <Sidebar contact={contact} selectContact={selectContact} />
-        <Chat contact={contact} currChat={currChat} />
-      </Split>
-    </UserProvider>
+
+        <Split sizes={[30, 70]} direction="horizontal" className="flex h-full ">
+          <Sidebar contact={contact} selectContact={selectContact} chats={chats} userId={user != null ? user?.uid : ""} />
+          <Chat contact={contact} 
+           currChat={currChat}
+           profileId={profileId}
+           chats={chats} userId={user != null ? user?.uid : ""} 
+          //  currChat={currChat}
+           />
+        </Split>
+
+      </UserProvider>
     </div>
   );
 }
