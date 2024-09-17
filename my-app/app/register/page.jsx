@@ -5,12 +5,13 @@ import { auth, provider, db } from "../firebase.js";
 // import { useNavigate } from "react-router-dom";
 import { signInWithPopup } from "firebase/auth";
 import { TextField, Button } from "@mui/material";
-import { usersCollectionRef, storage } from "../firebase.js";
+import { Users, storage } from "../firebase.js";
 import { addDoc, doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import Navbar from "../components/navbar.jsx";
-
+import {  useRouter } from "next/navigation.js";
 export default function Signup() {
+  const router=useRouter();
   // const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [file, setFile] = useState(null);
@@ -27,14 +28,14 @@ export default function Signup() {
     const obj = {
       name: name,
       email: user.email,
-      games: [],
+      chats: [],
       profilePicture: url,
       createdAt: serverTimestamp(),
-      rating:{"rapid":800,"blitz":800,"bullet":800}
+      // rating:{"rapid":800,"blitz":800,"bullet":800}
     };
 
     try {
-      await setDoc(doc(db, "users", user.uid), obj);
+      await setDoc(doc(db, "Users", user.uid), obj);
       setUser(user.displayName);
     } catch (error) {
       console.error("Error adding document: ", error);
@@ -51,7 +52,8 @@ export default function Signup() {
         const profilePicUrl = await getDownloadURL(storageRef);
 
         addDocument(tempUser, profilePicUrl);
-        navigate("/landing");
+        router.push("/");
+        // navigate("/landing");
       })
       .catch((error) => {
         console.error("Error during sign-in:", error);
@@ -74,7 +76,7 @@ export default function Signup() {
       const profilePicUrl = await getDownloadURL(storageRef);
 
       await addDocument(user, profilePicUrl,info.displayName);
-      navigate("/landing");
+     router.push("/");
     } catch (error) {
       console.error("Error creating user:", error);
       setError(error.message);
@@ -137,7 +139,7 @@ export default function Signup() {
               />
               <label htmlFor="password">Password</label>
               <TextField
-                type="password"
+                // type="password"
                 id="password"
                 name="password"
                 className="size-10 w-60 h-10 bg-white  rounded-md"

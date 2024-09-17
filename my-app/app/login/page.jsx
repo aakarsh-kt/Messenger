@@ -1,8 +1,6 @@
-
 "use client"
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import { Button } from "@mui/material";
-import { UserContext } from '../contexts/userContext.jsx';
 import {
   signInWithEmailAndPassword,
   onAuthStateChanged,
@@ -12,28 +10,39 @@ import {
 // import { useNavigate } from "react-router-dom";
 import NavBar from "../components/navbar.jsx";
 import { auth, provider } from "../firebase.js";
-import { Link, Outlet } from "react-router-dom";
-import { useUser } from '../userContext';
-import {  useRouter } from "next/router.js";
+
+import Link from "next/link.js";
+import { UserContext,useUser } from '../userContext';
+import {  useRouter } from "next/navigation.js";
 export default function () {
   // const navigate = useNavigate();
-  // const {user, setUser} = React.useContext(UserContext);
-  const [user,setUser]=React.useState(null);
+  
+  // const {user, setUser} = useContext(UserContext);
+
+  // if(user==null)
+  //   console.log("Empty Box")
+  const userContext=useUser();
+  const [user,setUser]=React.useState(userContext);
   const router=useRouter();
-    if(useUser() && user==null)
-        setUser(useUser());
-    
+  useEffect(()=>{
+    setUser(userContext);
+  
+},[userContext])
+  //   if(useUser() && user==null)
+  //       setUser(useUser());
+  // const {user,setUser}=useContext(UserContext);
   const signInWithGoogle = () => {
     signInWithPopup(auth, provider)
       .then((result) => {
         const tempUser = result.user;
         console.log("User info:", tempUser);
         router.push("/");
-        // navigate("/landing?user=");
+        // navigate("/landing?use  r=");
       })
       .catch((error) => {
         console.error("Error during sign-in:", error);
       });
+      // window.location.reload();
   };
   async function login(event) {
     event.preventDefault();
@@ -45,6 +54,7 @@ export default function () {
       );
       // navigate("/landing?user=" + user.user.email);
       console.log(user.user.email);
+      router.push("/");
     } catch (error) {
       console.error(error);
     }
@@ -59,22 +69,24 @@ export default function () {
       };
     });
   }
-  React.useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      // console.log(currentUser.email);
-      setUser(currentUser);
+  // useEffect(() => {
+  //   // This will only run on the client side
+  //   console.log(router.pathname);
+  // }, [router]);
+  // React.useEffect(() => {
+  //   const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+  //     // console.log(currentUser.email);
+  //     setUser(currentUser);
 
-    });
-    return () => unsubscribe();
-  }, []);
-  async function logout() {
-    await signOut(auth);
-  }
+  //   });
+  //   return () => unsubscribe();
+  // }, []);
+
   return (
     <div className="w-screen  items-center flex flex-col justify-between h-screen bg-slate-600">
 	<NavBar className="my-0 "/>     
   {
-    console.log(user)
+    // console.log(user)
   }
   {/* <div className="flex flex-col justify-evenly items-center h-"> */}
  <h1 className="text-6xl text-center font-bold text-white">Login</h1>
@@ -86,7 +98,7 @@ export default function () {
           id="username"
           name="username"
           required
-          // onChange={handleChange}
+          onChange={handleChange}
         ></input>
         <br />
         <label htmlFor="password" className="text-white">Password</label>
@@ -95,11 +107,13 @@ export default function () {
           type="password"
           id="password"
           name="password"
-          // onChange={handleChange}
+          onChange={handleChange}
           required
         ></input>
         <br />
-        <button type="submit" className="size-8 w-40 ml-10 h-10 bg-cyan-500  rounded-md" >Login</button>
+        <button type="submit" 
+        onClick={login}
+        className="size-8 w-40 ml-10 h-10 bg-cyan-500  rounded-md" >Login</button>
         {/* {user?.email} */}
       </form>
       <div className="flex flex-col items-center">
@@ -113,11 +127,13 @@ export default function () {
         </div>
       <div className="flex flex-col text-white items-center gap-2">
           <h3>Don't have an account, Sign up now</h3>
+          <Link href="/register">
           <Button
-          //  to="/register"
+          
             className="text-cyan-400" >
             Register
           </Button>
+          </Link>
       </div>
       {/* <Button 
       // onClick={logout}
@@ -125,7 +141,7 @@ export default function () {
         Logout
       </Button> */}
 
-      <Outlet />
+  
       {/* </div> */}
     </div>
   );

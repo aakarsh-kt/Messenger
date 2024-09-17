@@ -17,7 +17,7 @@ const wss = new WebSocketServer({ noServer: true });
 
 wss.on('connection', function connection(ws) {
     ws.on('error', console.error);
-    gameManager.addUser(ws);
+    // gameManager.addUser(ws);
   
     ws.on('message', function message(data) {
       console.log('Received message:', data);
@@ -25,10 +25,10 @@ wss.on('connection', function connection(ws) {
   
     ws.on('close', () => {
       console.log('Player disconnected');
-      gameManager.removeUser(ws);
+      // gameManager.removeUser(ws);
     });
   
-    ws.send('Welcome to the Chess Game!');
+    ws.send('Welcome to the Texter!');
   });
   
   server.on('upgrade', (request, socket, head) => {
