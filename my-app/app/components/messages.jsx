@@ -7,54 +7,68 @@ import 'react-perfect-scrollbar/dist/css/styles.css';
 import { useEffect } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
+import { useRef } from "react";
+import { useState } from "react";
 
 export default function (props) {
-    const id = 1;
-    const [chat,setChat]=React.useState("");
+    const messagesEndRef = useRef(null);
+    // const scrollableRef = useRef(null); // Ref for the scrollable container
+    const [isUserAtBottom, setIsUserAtBottom] = useState(true);
+
+    // Function to scroll to the bottom of the container
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
     useEffect(() => {
-        const fetchChat = async () => {
-            if (props.currChat) { // Check if chatId exists
-                try {
-                    // Reference to the specific document in the "Chats" collection
-                    const chatRef = doc(db, "Chats", props.currChat);
-    
-                    // Fetch the chat document from Firestore
-                    const chatDoc = await getDoc(chatRef);
-    
-                    if (chatDoc.exists()) {
-                        // Get the chat data
-                        const chatData = chatDoc.data();
-                        console.log("Chat Data:", chatData);
-    
-                        // Do something with the fetched chat data (e.g., store in state)
-                        setChat(chatData);  // Assuming you have a state to store the chat
-                    } else {
-                        console.log("No such chat!");
-                    }
-                } catch (error) {
-                    console.error("Error fetching chat:", error);
-                }
+        messagesEndRef.current?.scrollIntoView();
+        // if (messagesEndRef.current) {
+        //     messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+        // }
+    }, [props.chats]); 
+    // Function to check if the user is at the bottom of the chat
+    const handleScroll = () => {
+        if (scrollableRef.current) {
+            const { scrollTop, scrollHeight, clientHeight } = scrollableRef.current;
+            // Check if the user is within a certain range of the bottom
+            if (scrollTop + clientHeight >= scrollHeight - 50) {
+                setIsUserAtBottom(true);
+            } else {
+                setIsUserAtBottom(false);
             }
-        };
+        }
+    };
+
     
-        fetchChat();
-    }, [props.currChat]); // Run effect when `currChat` changes
+    // useEffect(() => {
+    //     if (isUserAtBottom) {
+    //         scrollToBottom();
+    //     }
+    // }, [props.chats]);
+
+ 
+    
     return (
-        <div className="bg-green-500 rounded-2xl h-full">
-            {/* <PerfectScrollbar   option={{ suppressScrollX: true } }> */}
-                <div className="p-2">
-                    {console.log(chat)}
-                    {chat?.chat?.map((msg, index) => {
-                        {console.log(props.userId)}
-                        {console.log(msg.sender)}
-                        if (msg.sender == props.userId) {
-                            return <MyMessage key={index} msg={msg.msg} />;
-                        } else {
-                            return <OtherMessage key={index} msg={msg.msg} />;
-                        }
-                    })}
-                </div>
-            {/* </PerfectScrollbar> */}
-        </div>
+        <PerfectScrollbar 
+            // containerRef={(el) => {scrollableRef.current = el}} 
+            // onScrollY={handleScroll}
+        >
+            <div className="bg-black rounded-2xl h-full m-2 p-2">
+                {console.log(props.chats)}
+                
+                {props.chats?.map((msg, index) => {
+                    // Check if the message sender is the current user
+                    if (msg.sender === props.userId) {
+                        return <MyMessage key={index} msg={msg.msg} />;
+                    } else {
+                        return <OtherMessage key={index} msg={msg.msg} />;
+                    }
+                })}
+    
+                {/* Dummy div to ensure smooth scrolling to bottom */}
+                <div ref={messagesEndRef} />
+            </div>
+        </PerfectScrollbar>
     );
+    
+    
 }

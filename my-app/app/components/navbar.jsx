@@ -62,7 +62,7 @@ export default function () {
         await signOut(auth);
       }
     return (
-        <div className="bg-slate-400 dark:bg-orange-400 w-screen flex flex-row justify-between items-center my-0 p-2">
+        <div className="bg-orange-400 w-screen flex flex-row justify-between items-center my-0 p-2">
             {/* {console.log(user)}
             {console.log(playerInfo)} */}
            
@@ -83,7 +83,7 @@ export default function () {
                />}
             {/* {console.log(user)} */}
             <h3>{playerInfo?.name} </h3> 
-            <h1 className="mx-auto font-bold text-4xl font-mono">Texter</h1>
+            <h1 className="mx-auto font-bold text-4xl font-mono ">Texter</h1>
             <ul className="flex flex-row justify-between gap-2 ">
                 <Link href="/">
                     <li><button className="hover:bg-orange-500 rounded-md p-1">Home</button></li>
@@ -91,11 +91,11 @@ export default function () {
 
                 {user==null || user?.user?.email==null?
                  <Link href="/login">
-                    <li><button className="hover:bg-orange-500 rounded-md p-1">Login</button></li>
+                    <li><button className="hover:bg-orange-400 rounded-md p-1">Login</button></li>
                 </Link>
                 :
                 
-                <li><button className="hover:bg-orange-500 rounded-md p-1" onClick={logout}>Logout</button></li>
+                <li><button className="hover:bg-orange-400 rounded-md p-1" onClick={logout}>Logout</button></li>
                 
                 }
 

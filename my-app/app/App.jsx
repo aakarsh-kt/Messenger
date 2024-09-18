@@ -57,7 +57,8 @@ export default function LandingPage() {
       const collectionRef = collection(db, "Chats"); // Replace with your collection name
 
       // Create a query to find documents where participants array contains the userId
-      const q = query(collectionRef, where("participants", "array-contains", userId));
+      if(userId)
+     { const q = query(collectionRef, where("participants", "array-contains", userId));
 
       try {
         // Execute the query
@@ -80,7 +81,7 @@ export default function LandingPage() {
         console.error("Error fetching documents:", error);
       }
     }
-
+}
 
     const userId = user?.uid; // Replace with the user ID you're searching for
     getDocumentsWithUserId(userId);

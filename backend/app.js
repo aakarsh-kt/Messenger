@@ -1,42 +1,120 @@
 import { WebSocketServer } from 'ws';
-
+import express from 'express';
 import http from 'http';
-import dotenv from 'dotenv';
-dotenv.config();
 
-const PORT = process.env.PORT || 8080;
+const app = express();
+const server = http.createServer(app);
+const wss = new WebSocketServer({ server });
 
-const server = http.createServer((req, res) => {
-  if (req.url === '/health') {
-    res.writeHead(200);
-    res.end('Server is healthy');
-  }
+// This object will hold all active WebSocket connections for each user
+const clients = new Map();
+
+// Function to send a message to specific recipients in a chat (either group or 1-on-1)
+function sendMessageToRecipients(recipients, message) {
+  console.log("here I am Bitch");
+  console.log(recipients)
+    recipients.forEach(recipientId => {
+        const client = clients.get(recipientId);
+        console.log(client);
+        console.log(client?.ws?.readyState);
+        console.log( WebSocket.OPEN)
+        if (client && client.ws.readyState === WebSocket.OPEN) {
+            console.log("It tried")
+            client.ws.send(JSON.stringify(message));
+        }
+    });
+}
+
+wss.on('connection', (ws) => {
+    console.log('A new client connected');
+
+    ws.on('message', (data) => {
+        const message = JSON.parse(data);
+
+        const { senderId, chatId, msg, recipients } = message;
+
+        // Store the connection if it's a new user or update existing connection
+        clients.set(senderId, { ws, chatId });
+
+        // Send the message only to the intended recipients
+        sendMessageToRecipients(recipients, { senderId, msg, timestamp: new Date() });
+
+        console.log(`User ${senderId} sent a message: "${msg}" to chat: ${chatId} for recipients: ${recipients}`);
+    });
+
+    ws.on('close', () => {
+        console.log('A client disconnected');
+        // Clean up clients map when the connection is closed
+        clients.forEach((client, clientId) => {
+            if (client.ws === ws) {
+                clients.delete(clientId);
+            }
+        });
+    });
 });
 
-const wss = new WebSocketServer({ noServer: true });
+// Express endpoint to test server
+app.get('/', (req, res) => {
+    res.send("WebSocket server is running!");
+});
 
-wss.on('connection', function connection(ws) {
-    ws.on('error', console.error);
-    // gameManager.addUser(ws);
-  
-    ws.on('message', function message(data) {
-      console.log('Received message:', data);
-    });
-  
-    ws.on('close', () => {
-      console.log('Player disconnected');
-      // gameManager.removeUser(ws);
-    });
-  
-    ws.send('Welcome to the Texter!');
-  });
-  
-  server.on('upgrade', (request, socket, head) => {
-    wss.handleUpgrade(request, socket, head, (ws) => {
-      wss.emit('connection', ws, request);
-    });
-  });
-  
-  server.listen(PORT, () => {
-    console.log(`Server is listening on port ${PORT}`);
-  });
+server.listen(8080, () => {
+    console.log('WebSocket server is listening on port 8080');
+});
+
+// import { WebSocketServer } from 'ws'; // This imports WebSocketServer correctly in ES modules
+// import express from 'express';
+// import http from 'http';
+
+// const app = express();
+// const server = http.createServer(app);
+// const wss = new WebSocketServer({ server }); // Correct constructor for WebSocketServer
+
+// // This object will hold all active WebSocket connections
+// const clients = new Map();
+
+// // Function to broadcast a message to all connected clients of a specific chat room
+// function broadcastMessage(chatId, message) {
+//     clients.forEach((client, clientId) => {
+//         if (client.chatId === chatId && client.ws.readyState === WebSocket.OPEN) {
+//             client.ws.send(JSON.stringify(message));
+//         }
+//     });
+// }
+
+// wss.on('connection', (ws) => {
+//     console.log('A new client connected');
+
+//     ws.on('message', (data) => {
+//         const message = JSON.parse(data);
+
+//         const { id, chatId, msg } = message;
+
+//         // Store the connection by userId and chatId
+//         clients.set(id, { ws, chatId });
+
+//         // Broadcast message to all clients in the chat room
+//         broadcastMessage(chatId, { id, msg, timestamp: new Date() });
+
+//         console.log(`User ${id} sent a message: ${msg} to chat: ${chatId}`);
+//     });
+
+//     ws.on('close', () => {
+//         console.log('A client disconnected');
+//         // Clean up clients map when the connection is closed
+//         clients.forEach((client, clientId) => {
+//             if (client.ws === ws) {
+//                 clients.delete(clientId);
+//             }
+//         });
+//     });
+// });
+
+// // Express endpoint to test server
+// app.get('/', (req, res) => {
+//     res.send("WebSocket server is running!");
+// });
+
+// server.listen(8080, () => {
+//     console.log('WebSocket server is listening on port 8080');
+// });

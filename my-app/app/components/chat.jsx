@@ -10,6 +10,9 @@ import 'react-perfect-scrollbar/dist/css/styles.css';
 import { useEffect } from "react";
 import { arrayUnion, doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase.js";
+import { useRef } from "react";
+import { useState } from "react";
+import EmptyChat from "./emptyChat.jsx";
 
 export default function(props) {
     const userContext = useUser();
@@ -20,6 +23,46 @@ export default function(props) {
         setUser(userContext);
     }, [userContext]);
     // const {user,setUser}=useContext(UserContext);
+        const [ws, setWs] = useState(null); // WebSocket instance
+    const wsRef = useRef(null); // To keep track of the WebSocket instance
+    const [messages,setMessages]=React.useState([]);
+    const [updatedChat,setUpdatedChat]=React.useState([]);
+  
+    useEffect(() => {
+        const socket = new WebSocket("ws://localhost:8080");
+    
+        socket.onopen = () => {
+            console.log('WebSocket connection established');
+        };
+    
+        socket.onclose = () => {
+            console.log('WebSocket connection closed');
+        };
+    
+        socket.onerror = (error) => {
+            console.error('WebSocket error:', error);
+        };
+    
+        socket.onmessage = (event) => {
+            const message = JSON.parse(event.data);
+            console.log('Received message from server:', message); // This should trigger
+            // props.chats((prev)=>[...prev,message]);
+            if(message)
+            setUpdatedChat((prev)=>[...prev,message]);
+            setMessages((prevMessages) => [...prevMessages, message]);
+        };
+    
+        wsRef.current = socket;
+        setWs(socket);
+    
+        return () => {
+            if (wsRef.current) {
+                wsRef.current.close();
+            }
+        };
+    }, []);
+    
+
     async function getUserNameById(receiver) {
         try {
             // Reference to the document with the given userId in the "users" collection
@@ -92,38 +135,48 @@ export default function(props) {
         
     }, [props.profileId]); // Re-run the effect if profileId changes
     
-    const [messages, setMessages] = React.useState([
-        { "msg": "Hi My Main man", "id": "1" },
-        { "msg": "Hi my Nigga", "id": "2" },
-        { "msg": "Who you calling Nigga", "id": "1" },
-        { "msg": "Hi My Main man", "id": "1" },
-        { "msg": "Hi my Nigga", "id": "2" },
-        { "msg": "Who you calling Nigga", "id": "1" },
-        { "msg": "Hi My Main man", "id": "1" },
-       
-        
-        { "msg": "Who you calling Nigga", "id": "1" },
-        { "msg": "Hi My Main man", "id": "1" },
-        { "msg": "Hi my Nigga", "id": "2" },
-        { "msg": "Who you calling Nigga", "id": "1" },
-        // Add more messages here...
-    ]);
+  
 
     const [currMsg, setCurrMsg] = React.useState("");
 
     function handleChange(event) {
         setCurrMsg(event.target.value);
     }
+    useEffect(()=>{
 
+        props.chats.map((ch)=>{
+            if(ch.chatId==props.currChat)
+               { console.log("Bingo")
+                setUpdatedChat(ch.data.chat)
+               }
+        })
+    },[props.chats,props.currChat])
     function handleSubmit(e) {
         if(currMsg.length>0)
        { 
-        // const temp = { "msg": currMsg, "id": userId };
-        addMessageToChat(props.currChat,currMsg,userId);
+        if(wsRef.current)
+        {
+           
+        console.log(props.profileId);
+        const serveMsg={"msg":currMsg, "senderId":userId, "chatId":props.currChat, "recipients":[props.profileId]}
+        ws.send(JSON.stringify(serveMsg));
+        // setProcessedChats([...processedChats,temp]);
+    }
+    const temp = { "msg": currMsg, "sender": userId };
+    console.log("Now adding",temp);
+ 
+    if(temp.msg.length>0)
+    {   
+        
+        
+        setUpdatedChat((prev)=>[...prev,temp]);
+        }
+    console.log(updatedChat)
+    addMessageToChat(props.currChat,currMsg,userId);
         // setMessages(messages.concat(temp));
         setCurrMsg("");
     
-    }
+        }
     }
     async function addMessageToChat (chatId, messageText, senderId) {
         try {
@@ -157,19 +210,28 @@ export default function(props) {
         <div className="bg-slate-800 flex flex-col h-full p-1 m-1 rounded-md">
             {console.log(processedChats)}
             {console.log(props.chats)}
-            <Profile currDisplayUser={currDisplayUser} />
-            {/* <PerfectScrollbar> */}
+            {props.currChat!="" && <Profile currDisplayUser={currDisplayUser} />}
+            <PerfectScrollbar>
             {/* <h1>{props.currChat}</h1> */}
-            <div className="flex-grow overflow-hidden">
-                <Messages messages={messages} 
+            {console.log(updatedChat)}
+                {console.log(props.currChat)}
+               {props.currChat!=""? 
+            <div className="flex-grow overflow-auto  ">
+               <Messages messages={processedChats} 
                 userId={userId}
+                chats={updatedChat}
                     currChat={props.currChat}
                 />
             </div>
-            {/* </PerfectScrollbar>  */}
+                :
+                <div className="flex flex-col justify-center items-center h-full ">
+                <EmptyChat/>
+                </div>
+                }
+            </PerfectScrollbar> 
             <div className="flex items-center gap-2 mt-auto p-2 bg-slate-700">
                 <TextField 
-                    className="bg-slate-200 rounded-full w-full drop-shadow-md" 
+                    className="bg-slate-200 rounded-full w-full " 
                     id="outlined-basic" 
                     label="Message"
                     value={currMsg}
