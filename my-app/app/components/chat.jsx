@@ -17,67 +17,66 @@ import EmptyChat from "./emptyChat.jsx";
 import IncomingCall from "./incomingCall.jsx";
 import { useRouter } from "next/navigation.js";
 import Caller from "./caller.jsx";
-export default function(props) {
+export default function (props) {
     console.log(props.playerInfo);
     const userContext = useUser();
     const [processedChats, setProcessedChats] = React.useState([]);
     const [user, setUser] = React.useState(userContext);
-    const otherUser=props.otherUser;
-    const router=useRouter();
+    const otherUser = props.otherUser;
+    const router = useRouter();
     React.useEffect(() => {
         setUser(userContext);
-        if(userContext==null)
+        if (userContext == null)
             router.push("/login");
     }, [userContext]);
-   
-  
+
+
     // const {user,setUser}=useContext(UserContext);
-        const [ws, setWs] = useState(null); // WebSocket instance
+    const [ws, setWs] = useState(null); // WebSocket instance
     const wsRef = useRef(null); // To keep track of the WebSocket instance
-    const [messages,setMessages]=React.useState([]);
-    const [updatedChat,setUpdatedChat]=React.useState([]);
+    const [messages, setMessages] = React.useState([]);
+    const [updatedChat, setUpdatedChat] = React.useState([]);
     const [incomingCall, setIncomingCall] = useState(false);
     useEffect(() => {
         const socket = new WebSocket("ws://localhost:8080");
-    
+
         socket.onopen = () => {
             console.log('WebSocket connection established');
             // ws.send(JSON.stringify({ senderId: 'user1' }));
         };
-    
+
         socket.onclose = () => {
             console.log('WebSocket connection closed');
         };
-    
+
         socket.onerror = (error) => {
             console.error('WebSocket error:', error);
         };
-    
+
         socket.onmessage = (event) => {
 
             const message = JSON.parse(event.data);
-            if(message?.type=="ping")
-            {
+            if (message?.type == "ping") {
                 // "msg":currMsg, "senderId":userId, "chatId":props.currChat, "recipients":[props.profileId]
-                socket.send(JSON.stringify({"msg":"","senderId":userId,"chatId":"none","recipients":["none"]}));
+                socket.send(JSON.stringify({ "msg": "", "senderId": userId, "chatId": "none", "recipients": ["none"] }));
 
             }
-            if(message?.type=="call-invitation")
-            {
+            if (message?.type == "call-invitation") {
                 setIncomingCall(true);
                 setStartCall(true);
-                console.log("Incoming call from",message.callerId);
+                console.log("Incoming call from", message.callerId);
             }
             // props.chats((prev)=>[...prev,message]);
-            else
-            {  if(message)
-                setUpdatedChat((prev)=>[...prev,message]);
+            else {
+                console.log(message)
+                if (message)
+                    setUpdatedChat((prev) => [...prev, message]);
                 setMessages((prevMessages) => [...prevMessages, message]);
-            
+
             }
-                console.log('Received message from server:', message); // This should trigger
+            console.log('Received message from server:', message); // This should trigger
         };
-    
+
         wsRef.current = socket;
         setWs(socket);
         // if(socket)
@@ -88,7 +87,7 @@ export default function(props) {
             }
         };
     }, [props.profileId]);
-    
+
 
     async function getUserNameById(receiver) {
         try {
@@ -105,7 +104,7 @@ export default function(props) {
                 const id = userDoc.id;
                 const name = userData.name;
                 const pic = userData.profilePicture;
-                const pair = {"id":id, "name": name, "pic": pic };
+                const pair = { "id": id, "name": name, "pic": pic };
                 // console.log(pic)
                 return pair;
             } else {
@@ -116,7 +115,7 @@ export default function(props) {
             console.error("Error fetching user:", error);
         }
     }
-    const userId=props.userId;
+    const userId = props.userId;
     useEffect(() => {
         const modifyChats = async () => {
             try {
@@ -129,7 +128,7 @@ export default function(props) {
                         // Assuming getUserNameById is async and fetches the username
                         const pair = await getUserNameById(receiver);
                         // console.log(profilePic)
-                        return { "id":pair.id,"name": pair.name, "chat": cont.chat, "profilePic": pair.pic };
+                        return { "id": pair.id, "name": pair.name, "chat": cont.chat, "profilePic": pair.pic };
                     })
                 );
 
@@ -142,185 +141,186 @@ export default function(props) {
 
         modifyChats();
     }, [props.chats, props.userId]);
-    const [currDisplayUser,setCurrDisplayUser]=React.useState("");
+    const [currDisplayUser, setCurrDisplayUser] = React.useState("");
     useEffect(() => {
         const getUser = async () => {
             try {
                 // Await the result of the async function getUserNameById
                 const updatedUser = await getUserNameById(props.profileId);
                 // console.log(updatedUser);
-    
+
                 // Set the fetched user as the current display user
                 setCurrDisplayUser(updatedUser);
             } catch (error) {
                 console.error("Error updating user:", error);
             }
         };
-    
+
         // Call the async function
         getUser();
-        
+
     }, [props.profileId]); // Re-run the effect if profileId changes
-    
-  
+
+
 
     const [currMsg, setCurrMsg] = React.useState("");
 
     function handleChange(event) {
         setCurrMsg(event.target.value);
     }
-    useEffect(()=>{
+    useEffect(() => {
 
-        props.chats.map((ch)=>{
-            if(ch.chatId==props.currChat)
-               {
+        props.chats.map((ch) => {
+            if (ch.chatId == props.currChat) {
                 //  console.log("Bingo")
                 setUpdatedChat(ch.data.chat)
-               }
+            }
         })
-    },[props.chats,props.currChat])
+    }, [props.chats, props.currChat])
     function handleSubmit(e) {
-        if(currMsg.length>0)
-       { 
-        if(wsRef.current)
-        {
-           
-        // console.log(props.profileId);
-        const serveMsg={"msg":currMsg, "senderId":userId, "chatId":props.currChat, "recipients":[props.profileId]}
-        ws.send(JSON.stringify(serveMsg));
-        // setProcessedChats([...processedChats,temp]);
-    }
-    const temp = { "msg": currMsg, "sender": userId };
-    // console.log("Now adding",temp);
- 
-    if(temp.msg.length>0)
-    {   
-        
-        
-        setUpdatedChat((prev)=>[...prev,temp]);
-        }
-    // console.log(updatedChat)
-    addMessageToChat(props.currChat,currMsg,userId);
-        // setMessages(messages.concat(temp));
-        setCurrMsg("");
-    
-        }
-    }
+        if (currMsg.length > 0) {
+            if (wsRef.current) {
 
-  const [playerInfo, setPlayerInfo] = useState(null);
-  useEffect(() => {
-    async function getDocumentsByQuery(collectionName, field, operator, value) {
-      if (value != undefined) {
-        console.log(value);
-        const q = query(
-          collection(db, collectionName),
-          where(field, operator, value)
-        );
-        console.log(query);
-        const querySnapshot = await getDocs(q);
-        querySnapshot.forEach((doc) => {
-          console.log(doc.id, " => ", doc.data());
-          setPlayerInfo(doc.data());
-        });
-      }
-    }
-    if (user != null)
-      getDocumentsByQuery("Users", "email", "==", user?.user?.email);
-  }, [user]);
-    async function addMessageToChat (chatId, messageText, senderId) {
-        try {
-            // console.log("I am here")
-          // Reference to the specific chat document
-          const chatRef = doc(db, "Chats", chatId);
-      
-          // Create the message object to be added
-          const newMessage = {
-            sender: senderId,
-            msg: messageText,
-            timestamp: new Date(), // Add timestamp if needed
-          };
-      
-          // Update the chat document with the new message added to the messages array
-          await updateDoc(chatRef, {
-            chat: arrayUnion(newMessage), // Adds the new message to the messages array
-          });
-      
-          console.log("Message added successfully!");
-        } catch (error) {
-          console.error("Error adding message:", error);
+                // console.log(props.profileId);
+                const serveMsg = { "msg": currMsg, "senderId": userId, "chatId": props.currChat, "recipients":participants }
+                ws.send(JSON.stringify(serveMsg));
+            
+            }
+            const temp = { "msg": currMsg, "sender": userId };
+            
+
+            if (temp.msg.length > 0) {
+                setUpdatedChat((prev) => [...prev, temp]);
+            }
+            addMessageToChat(props.currChat, currMsg, userId);
+            setCurrMsg("");
+
         }
-      };
+    }
+    const [participants, setParticipants] = useState([]);
+    useEffect(() => {
+        async function getDocumentsByQuery(collectionName, value) {
+            try {
+                const docRef = doc(db, collectionName, value); // Replace 'collectionName' with your actual collection name
+                const docSnap = await getDoc(docRef);
+            
+                if (docSnap.exists()) {
+                    setParticipants(docSnap.data().participants);
+                  console.log("Document data:", docSnap.data());
+                } else {
+                  console.log("No such document!");
+                }
+              } catch (error) {
+                console.error("Error getting document:", error);
+              }
+            
+        }
+
+        getDocumentsByQuery("Chats", props.currChat);
+    }, [ props.currChat]);
+    // console.log(props.currChat);
+    const [playerInfo, setPlayerInfo] = useState(null);
+    useEffect(() => {
+        async function getDocumentsByQuery(collectionName, field, operator, value) {
+            if (value != undefined) {
+                console.log(value);
+                const q = query(
+                    collection(db, collectionName),
+                    where(field, operator, value)
+                );
+                console.log(query);
+                const querySnapshot = await getDocs(q);
+                querySnapshot.forEach((doc) => {
+                    console.log(doc.id, " => ", doc.data());
+                    setPlayerInfo(doc.data());
+                });
+            }
+        }
+        if (user != null)
+            getDocumentsByQuery("Users", "email", "==", user?.user?.email);
+    }, [user]);
+    async function addMessageToChat(chatId, messageText, senderId) {
+        try {
+
+            const chatRef = doc(db, "Chats", chatId);
+
+
+            const newMessage = {
+                sender: senderId,
+                msg: messageText,
+                timestamp: new Date(), // Add timestamp if needed
+            };
+
+
+            await updateDoc(chatRef, {
+                chat: arrayUnion(newMessage),
+            });
+
+            console.log("Message added successfully!");
+        } catch (error) {
+            console.error("Error adding message:", error);
+        }
+    };
     function handleKeyDown(event) {
         if (event.key === "Enter")
             handleSubmit();
     }
     const [startCall, setStartCall] = useState(false);
     function handleAudioCall() {
-        setStartCall(prev=>!prev);
+        setStartCall(prev => !prev);
     }
-    function sendInvitation(){
-        const invitation ={"type":"call-invitation","callerId":userId,"roomId":props.currChat,"receiverId":props.profileId};
+    function sendInvitation() {
+        const invitation = { "type": "call-invitation", "callerId": userId, "roomId": props.currChat, "receiverId": props.profileId };
         ws.send(JSON.stringify(invitation));
     }
     const [videoOn, setVideoOn] = useState(false);
     function handleVideoCall() {
-        if(startCall==false)
-        sendInvitation()
-        setStartCall(prev=>!prev);
-        setVideoOn(prev=>!prev);
+        if (startCall == false)
+            sendInvitation()
+        setStartCall(prev => !prev);
+        setVideoOn(prev => !prev);
     }
-   
-    // useEffect(()=>{
-    //     if(userId==null)
-    //         router.push("/login");
-    // },[userId])
+
     return (
         <div className="bg-slate-800 flex flex-col h-full p-1 m-1 rounded-md">
-            {/* {console.log(processedChats)}
-            {console.log(props)} */}
-            {props.currChat!="" && <Profile currDisplayUser={currDisplayUser} handleAudioCall={handleAudioCall} handleVideoCall={handleVideoCall}/>}
-            {/* {startCall && <CallComponent userId={props.userId} profileId={props.profileId} videoOn={videoOn} />}
-            {incomingCall && (
-                <IncomingCallComponent localUserId={props.userId} remoteUserId={incomingCall} />
-            )}  */}
-            {/* {console.log(playerInfo)} */}
-            {/* {console.log(user)} */}
-            {startCall && <Caller roomId={props.currChat} userId={props.userId} name={playerInfo?.name}/>}
+
+            {props.currChat != "" && <Profile currDisplayUser={currDisplayUser} handleAudioCall={handleAudioCall} handleVideoCall={handleVideoCall} />}
+
+            {startCall && <Caller roomId={props.currChat} userId={props.userId} name={playerInfo?.name} />}
             {incomingCall && <IncomingCall roomId={props.currChat} name={playerInfo?.name} userId={props.userId} />}
-            {/* {console.log(props)} */}
+            {console.log(updatedChat)}
+            {console.log(participants)} 
             <PerfectScrollbar>
-            {/* <h1>{props.currChat}</h1> */}
-            {/* {console.log(updatedChat)}
-                {console.log(props.currChat)} */}
-               {props.currChat!=""? 
-            <div className="flex-grow overflow-auto  h-full">
-               <Messages messages={processedChats} 
-                userId={userId}
-                chats={updatedChat}
-                    currChat={props.currChat}
-                />
-            </div>
-                :
-                <div className="flex flex-col justify-center items-center h-full ">
-                <EmptyChat/>
-                </div>
+
+                {props.currChat != "" ?
+                    <div className="flex-grow overflow-auto  h-full">
+                        <Messages messages={processedChats}
+                            userId={userId}
+                            chats={updatedChat}
+                            currChat={props.currChat}
+                        />
+                    </div>
+                    :
+                    <div className="flex flex-col justify-center items-center h-full ">
+                        <EmptyChat />
+                    </div>
                 }
-            </PerfectScrollbar> 
+            </PerfectScrollbar>
             <div className="flex items-center gap-2 mt-auto p-2 bg-slate-700">
-                <TextField 
-                    className="bg-slate-200 rounded-full w-full " 
-                    id="outlined-basic" 
+                <TextField
+                    className="bg-slate-200 rounded-full w-full "
+                    id="outlined-basic"
                     label="Message"
                     value={currMsg}
-                    variant="outlined" 
+                    variant="outlined"
                     onChange={handleChange}
-                    onKeyDown={handleKeyDown} 
+                    onKeyDown={handleKeyDown}
                 />
                 <button className="bg-green-500 rounded-full p-2 m-2" onClick={handleSubmit}>
                     Send
                 </button>
             </div>
-              <style jsx>{`
+            <style jsx>{`
         .transition-container {
           position: relative;
           overflow: hidden;

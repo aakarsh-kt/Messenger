@@ -76,10 +76,12 @@ const clients = new Map();
 
 // Function to send a message to specific recipients in a chat (either group or 1-on-1)
 function sendMessageToRecipients(recipients, message) {
+    console.log(message)
     recipients.forEach(recipientId => {
         const client = clients.get(recipientId);
-        console.log(client)
-        if (client && client.ws.readyState === WebSocket.OPEN) {
+        // console.log(client)
+        if(message)
+        if (client && client.ws.readyState === WebSocket.OPEN && recipientId!=message?.senderId) {
             client.ws.send(JSON.stringify(message));
         }
     });
@@ -89,13 +91,13 @@ function sendMessageToRecipients(recipients, message) {
 function sendCallNotification(userId, recipientId, roomId) {
     const client = clients.get(recipientId);
    console.log("sending notification")
-   console.log(clients)
-   console.log(client)
-   console.log(userId)
-   console.log(recipientId)
-   console.log(roomId)
+//    console.log(clients)
+//    console.log(client)
+//    console.log(userId)
+//    console.log(recipientId)
+//    console.log(roomId)
     if (client) {
-        console.log("Notification Sent")
+        // console.log("Notification Sent")
         client.ws.send(JSON.stringify({
             "type": 'call-invitation',
             "callerId": userId,
@@ -116,7 +118,7 @@ wss.on('connection', (ws) => {
         const { senderId, chatId, msg, recipients, type, callType, metadata } = message;
 
         // Store the connection if it's a new user or update existing connection
-        const ik=message.chatId;
+       
         clients.set(senderId, { ws, chatId });
         // if (type === 'call') {
         //     // Notify the recipient about the incoming call

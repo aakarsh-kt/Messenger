@@ -12,18 +12,16 @@ import { useState } from "react";
 
 export default function (props) {
     const messagesEndRef = useRef(null);
-    // const scrollableRef = useRef(null); // Ref for the scrollable container
+    
     const [isUserAtBottom, setIsUserAtBottom] = useState(true);
 
-    // Function to scroll to the bottom of the container
+    
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView();
-        // if (messagesEndRef.current) {
-        //     messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-        // }
+       
     }, [props.chats]); 
     // Function to check if the user is at the bottom of the chat
     const handleScroll = () => {
@@ -39,12 +37,7 @@ export default function (props) {
     };
 
     
-    // useEffect(() => {
-    //     if (isUserAtBottom) {
-    //         scrollToBottom();
-    //     }
-    // }, [props.chats]);
-
+    
  
     
     return (
