@@ -140,13 +140,13 @@ In addition to core messaging features, users can search for other users using t
 - In group chats, users can initiate a group video or voice call.
 - Use ZEGOCLOUD’s SDK to manage multiple participants.
 ### 5. Usage Instructions
-**User Search:**
+- **User Search:**
 Users can search for other users by entering their username into a search bar.
 Matching users will be displayed, and a chat can be initiated by clicking their name.
-**Private & Group Chats:**
+- **Private & Group Chats:**
 Users can initiate a private chat or create a group for multiple participants.
 Group members can exchange messages in real-time, with all data stored in Firebase Firestore.
-**Voice & Video Calls:**
+- **Voice & Video Calls:**
 Users can initiate a call by clicking the "call" button during a chat.
 ZEGOCLOUD handles both one-on-one and group calls, with low latency.
 ### 6. Why These Features?
