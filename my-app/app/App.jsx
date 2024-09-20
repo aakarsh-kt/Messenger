@@ -15,24 +15,15 @@ import { addDoc, collection, doc, getDoc, getDocs, query, where } from "firebase
 import SearchUser from "./components/searchUser";
 import NewGroup from "./components/newGroup";
 export default function LandingPage() {
-  const contact = [
-    { name: "Giga Don", msg: "Peene Chale", time: Date() },
-    { name: "Dimli", msg: "Fookne Chale", time: Date() },
-    { name: "Simlim", msg: "Tahalne Chale", time: Date() }
-  ];
+
   const [user, setUser] = useState("");
-  // const userContext=useUser();
+
   const [currChat, setCurrChat] = useState(0);
   const router = useRouter();
-  // const [user, setUser] = useState(userContext);
 
-  // useEffect(()=>{
-  //   setUser(userContext);
-  // },[userContext])
-  // const {user,setUser}=useContext(UserContext);
   const [chats, setChats] = React.useState([]);
   
-  // const router = useRouter(); // Only safe to use inside useEffect
+
   const [playerInfo, setPlayerInfo] = useState(null);
   useEffect(() => {
     async function getDocumentsByQuery(collectionName, field, operator, value) {
@@ -277,7 +268,7 @@ async function getUserNameById(receiver) {
 
 
         <Split sizes={[30, 70]} direction="horizontal" className="flex h-full ">
-          <Sidebar contact={contact} 
+          <Sidebar 
           selectContact={selectContact} 
           chats={chats} 
           userId={user != null ? user?.uid : ""}
@@ -285,10 +276,12 @@ async function getUserNameById(receiver) {
           newChat={newChat}
           newGrpFunc={newGrpFunc}
           />
-          <Chat contact={contact} 
+          <Chat 
            currChat={currChat}
            profileId={profileId}
-           chats={chats} userId={user != null ? user?.uid : ""} 
+           chats={chats} 
+           playerInfo={playerInfo}
+           userId={user != null ? user?.uid : ""} 
           //  currChat={currChat}
           />
           {searchUser && 

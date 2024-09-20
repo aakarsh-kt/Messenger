@@ -66,6 +66,7 @@ import { WebSocketServer } from 'ws';
 import express from 'express';
 import http from 'http';
 
+
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
@@ -77,7 +78,7 @@ const clients = new Map();
 function sendMessageToRecipients(recipients, message) {
     recipients.forEach(recipientId => {
         const client = clients.get(recipientId);
-        // console.log(client)
+        console.log(client)
         if (client && client.ws.readyState === WebSocket.OPEN) {
             client.ws.send(JSON.stringify(message));
         }
@@ -85,16 +86,23 @@ function sendMessageToRecipients(recipients, message) {
 }
 
 // Function to notify about an incoming call
-function sendCallNotification(callerId, recipientId, callType, metadata) {
+function sendCallNotification(userId, recipientId, roomId) {
     const client = clients.get(recipientId);
-   
-    if (client && client.ws.readyState === WebSocket.OPEN) {
+   console.log("sending notification")
+   console.log(clients)
+   console.log(client)
+   console.log(userId)
+   console.log(recipientId)
+   console.log(roomId)
+    if (client) {
+        console.log("Notification Sent")
         client.ws.send(JSON.stringify({
-            type: 'incoming-call',
-            callerId,
-            callType, // 'audio' or 'video'
-            metadata, // PeerJS or WebRTC signaling information
-            timestamp: new Date()
+            "type": 'call-invitation',
+            "callerId": userId,
+            "receiverId": recipientId,
+            "roomId": roomId,
+          
+            // timestamp: new Date()
         }));
     }
 }
@@ -104,16 +112,23 @@ wss.on('connection', (ws) => {
     ws.send(JSON.stringify({ type: 'ping' }));
     ws.on('message', (data) => {
         const message = JSON.parse(data);
-
+        // console.log(message);   
         const { senderId, chatId, msg, recipients, type, callType, metadata } = message;
 
         // Store the connection if it's a new user or update existing connection
+        const ik=message.chatId;
         clients.set(senderId, { ws, chatId });
-        if (type === 'call') {
-            // Notify the recipient about the incoming call
-            const { recipientId } = message;
-            console.log(`User ${senderId} is calling ${recipientId}`);
-            sendCallNotification(senderId, recipientId, callType, metadata);
+        // if (type === 'call') {
+        //     // Notify the recipient about the incoming call
+        //     const { recipientId } = message;
+        //     console.log(`User ${senderId} is calling ${recipientId}`);
+        //     sendCallNotification(senderId, recipientId, callType, metadata);
+        // }
+        console.log(message);   
+         if(message?.type=='call-invitation'){
+            // const { call } = message;
+            console.log(`User ${message.callerId} is calling ${message.receiverId}`);
+            sendCallNotification(message.callerId, message.receiverId,message.roomId);
         }
         else {
             // Send the message only to the intended recipients (real-time chat)

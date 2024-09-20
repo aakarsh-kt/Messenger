@@ -1,39 +1,48 @@
-import { useState } from "react";
-import { useEffect } from "react";
-import { useRef } from "react";
+import React, { useEffect, useRef } from "react";
+import { ZegoUIKitPrebuilt } from "@zegocloud/zego-uikit-prebuilt";
 
-const { default: Peer } = require("peerjs");
-
-const IncomingCallComponent = ({ localUserId, remoteUserId }) => {
-    const peer = useRef(new Peer(localUserId)); // Initialize Peer instance
-    const localStream = useRef(null);
-    const remoteVideoRef = useRef();
-    const [isCallActive, setIsCallActive] = useState(false);
-
+export default function Caller(props) {
+    const myMeeting = useRef(null);
+    
     useEffect(() => {
-        peer.current.on('call', (call) => {
-            // Prompt user to accept or decline the call
-            if (window.confirm('Incoming call! Would you like to accept?')) {
-                navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-                    .then((stream) => {
-                        localStream.current = stream;
-                        call.answer(localStream.current); // Answer the call with local stream
+        if (myMeeting.current) {
+            initiateCall();
+        }
+    }, [myMeeting]);
 
-                        call.on('stream', (remoteStream) => {
-                            remoteVideoRef.current.srcObject = remoteStream; // Display remote video
-                            setIsCallActive(true);
-                        });
-                    });
-            } else {
-                call.close(); // Close the call if declined
+    const initiateCall = async () => {
+        const appID = 1196619711;
+        const serverSecret = "0cd3c1e75438d75a4fd3f88285176275";
+        const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(appID, serverSecret, props.roomId, props.userId, props.name);
+
+        // Send invitation to the other user
+        sendCallInvitation(props.recipientId, props.roomId);
+
+        // Initialize Zego
+        const zc = ZegoUIKitPrebuilt.create(kitToken);
+        zc.joinRoom({
+            container: myMeeting.current,
+            scenario: {
+                mode: ZegoUIKitPrebuilt.OneONoneCall,
             }
         });
-    }, [localUserId]);
+    };
+
+    const sendCallInvitation = (recipientId, roomId) => {
+        const invitationMessage = {
+            type: 'call-invitation',
+            callerId: props.userId,
+            roomId: roomId,
+        };
+
+        // Use your WebSocket or API to send the invitation
+        // For example:
+        // websocket.send(JSON.stringify(invitationMessage));
+    };
 
     return (
         <div>
-            {isCallActive && <video ref={remoteVideoRef} autoPlay className="remote-video" />}
+            <div ref={myMeeting} />
         </div>
     );
-};
-export default IncomingCallComponent;
+}

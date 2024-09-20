@@ -53,7 +53,7 @@ export default function (props) {
             // onScrollY={handleScroll}
         >
             <div className="rounded-2xl h-full m-2 p-2">
-                {console.log(props.chats)}
+                {/* {console.log(props.chats)} */}
                 
                 {props.chats?.map((msg, index) => {
                     // Check if the message sender is the current user
