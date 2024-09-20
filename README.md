@@ -151,11 +151,11 @@ Users can initiate a call by clicking the "call" button during a chat.
 ZEGOCLOUD handles both one-on-one and group calls, with low latency.
 ### 6. Why These Features?
 - **Search by Username**
-User Experience: Searching for users by username makes the app easy to use, allowing quick initiation of chats.
-Scalability: Firestore indexes allow for fast searches, even with a growing user base.
+-User Experience: Searching for users by username makes the app easy to use, allowing quick initiation of chats.
+-Scalability: Firestore indexes allow for fast searches, even with a growing user base.
 - **Group Chats**
 - *Convenience*: Group chats allow users to collaborate and communicate efficiently.
-Real-Time Messaging: WebSocket ensures smooth communication across multiple participants.
+-Real-Time Messaging: WebSocket ensures smooth communication across multiple participants.
 ### 7. Database Selection: Why Firebase?
 - **Overview**
 In developing the real-time messaging application, Firebase was selected as the backend database solution due to its unique advantages over traditional databases like MySQL, PostgreSQL, or MongoDB. Below are the key reasons for choosing Firebase:
@@ -177,5 +177,5 @@ Rules-Based Security: Firebase provides a flexible security rules engine that al
 Data Encryption: Firebase encrypts all data in transit and at rest, providing an additional layer of security.
 - **Cross-Platform Support**
 Seamless Integration with Web, Android, and iOS: Firebase provides SDKs for multiple platforms, allowing developers to create cross-platform applications with minimal effort. This ensures that the same database backend can serve users on web, Android, and iOS devices, streamlining development and reducing duplication of effort.
-**Conclusion**
+-**Conclusion**
 By leveraging Firebase's real-time capabilities, simplified data management, and integrated security features, the messaging app can offer a seamless, scalable, and secure experience for its users, with minimal overhead in terms of backend management.
