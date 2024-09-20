@@ -150,32 +150,32 @@ Group members can exchange messages in real-time, with all data stored in Fireba
 Users can initiate a call by clicking the "call" button during a chat.
 ZEGOCLOUD handles both one-on-one and group calls, with low latency.
 ### 6. Why These Features?
-**Search by Username**
+- **Search by Username**
 User Experience: Searching for users by username makes the app easy to use, allowing quick initiation of chats.
 Scalability: Firestore indexes allow for fast searches, even with a growing user base.
-**Group Chats**
-Convenience: Group chats allow users to collaborate and communicate efficiently.
+- **Group Chats**
+- *Convenience*: Group chats allow users to collaborate and communicate efficiently.
 Real-Time Messaging: WebSocket ensures smooth communication across multiple participants.
 ### 7. Database Selection: Why Firebase?
-**Overview**
+- **Overview**
 In developing the real-time messaging application, Firebase was selected as the backend database solution due to its unique advantages over traditional databases like MySQL, PostgreSQL, or MongoDB. Below are the key reasons for choosing Firebase:
 
-**Real-Time Capabilities**
+- **Real-Time Capabilities**
 Instant Synchronization: Firebase Firestore and Realtime Database are designed for real-time data synchronization, enabling instant updates across all connected clients. This capability is crucial for a messaging app, where users expect immediate message delivery and notification of new messages.
 WebSocket Support: Firebase automatically manages WebSocket connections, allowing for efficient real-time communication without the need for additional setup or configuration.
-**Simplified Data Management**
+- **Simplified Data Management**
 NoSQL Structure: Firebase offers a NoSQL database model, which is flexible and allows for hierarchical data storage. This is particularly useful for storing user profiles, chat messages, and group information without requiring a fixed schema.
 Automatic Scaling: Firebase handles scaling seamlessly. As the user base grows, Firebase automatically manages database scaling, reducing the burden on developers to configure and maintain server resources.
-**Integrated Authentication**
+- **Integrated Authentication**
 Firebase Authentication: Firebase provides a robust authentication system that easily integrates with the database. This simplifies user management, enabling features like email/password login, social media sign-ins, and more, all without needing a separate authentication layer.
 User Management: With Firebase, user data can be directly tied to their authentication status, facilitating easier access control and user-specific data management.
-**Firestore Querying Capabilities**
+- **Firestore Querying Capabilities**
 Indexed Search: Firebase Firestore offers built-in indexing and querying capabilities. This is especially beneficial for features like user search by username, where quick lookups are necessary.
 Optimized for Reads: Firestore is optimized for read-heavy operations, making it ideal for applications where data retrieval (such as loading chat histories or searching for users) is frequent.
-**Security**
+- **Security**
 Rules-Based Security: Firebase provides a flexible security rules engine that allows developers to define access control policies at the database level. This ensures that only authorized users can access sensitive data, such as private messages or user information.
 Data Encryption: Firebase encrypts all data in transit and at rest, providing an additional layer of security.
-**Cross-Platform Support**
+- **Cross-Platform Support**
 Seamless Integration with Web, Android, and iOS: Firebase provides SDKs for multiple platforms, allowing developers to create cross-platform applications with minimal effort. This ensures that the same database backend can serve users on web, Android, and iOS devices, streamlining development and reducing duplication of effort.
 **Conclusion**
 By leveraging Firebase's real-time capabilities, simplified data management, and integrated security features, the messaging app can offer a seamless, scalable, and secure experience for its users, with minimal overhead in terms of backend management.
