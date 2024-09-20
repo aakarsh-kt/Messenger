@@ -44,6 +44,7 @@ export default function () {
   
     async function logout() {
         await signOut(auth);
+        window.location.reload();
       }
     return (
         <div className="bg-orange-400 w-screen flex flex-row justify-between items-center my-0 p-2">
@@ -58,20 +59,20 @@ export default function () {
                />}
             {/* {console.log(user)}
             {console.log(playerInfo)} */}
-            <h3>{playerInfo?.name} </h3> 
+            <h1 className="text-2xl">{playerInfo?.name} </h1> 
             <h1 className="mx-auto font-bold text-4xl font-mono ">Texter</h1>
-            <ul className="flex flex-row justify-between gap-2 ">
+            <ul className="flex flex-row justify-between gap-2 text-2xl">
                 <Link href="/">
-                    <li><button className="hover:bg-orange-300 rounded-md p-1">Home</button></li>
+                    <li><button className="hover:bg-orange-300 rounded-md p-3  hover:text-white ease-in-out transform hover:shadow-lg hover:shadow-slate-500/50 hover:scale-110">Home</button></li>
                 </Link>
 
                 {user==null || user?.user?.email==null?
                  <Link href="/login">
-                    <li><button className="hover:bg-orange-300 rounded-md p-1">Login</button></li>
+                    <li><button className="hover:bg-orange-300 rounded-md p-3 hover:text-white ease-in-out transform hover:shadow-lg hover:shadow-slate-500/50 hover:scale-105">Login</button></li>
                 </Link>
                 :
                 
-                <li><button className="hover:bg-orange-300 rounded-md p-1" onClick={logout}>Logout</button></li>
+                <li><button className="hover:bg-orange-300 rounded-md p-3 hover:text-white ease-in-out transform hover:shadow-lg hover:shadow-slate-500/50 hover:scale-105" onClick={logout}>Logout</button></li>
                 
                 }
 

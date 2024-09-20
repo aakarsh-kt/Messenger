@@ -13,14 +13,19 @@ import { db } from "../firebase.js";
 import { useRef } from "react";
 import { useState } from "react";
 import EmptyChat from "./emptyChat.jsx";
-
+import CallComponent from "./callComponent.jsx";
+import IncomingCallComponent from "./incomingCall.jsx";
+import { useRouter } from "next/navigation.js";
 export default function(props) {
     const userContext = useUser();
     const [processedChats, setProcessedChats] = React.useState([]);
     const [user, setUser] = React.useState(userContext);
     const otherUser=props.otherUser;
+    const router=useRouter();
     React.useEffect(() => {
         setUser(userContext);
+        if(userContext==null)
+            router.push("/login");
     }, [userContext]);
     // const {user,setUser}=useContext(UserContext);
         const [ws, setWs] = useState(null); // WebSocket instance
@@ -33,6 +38,7 @@ export default function(props) {
     
         socket.onopen = () => {
             console.log('WebSocket connection established');
+            // ws.send(JSON.stringify({ senderId: 'user1' }));
         };
     
         socket.onclose = () => {
@@ -44,7 +50,14 @@ export default function(props) {
         };
     
         socket.onmessage = (event) => {
+
             const message = JSON.parse(event.data);
+            if(message.type=="ping")
+            {
+                // "msg":currMsg, "senderId":userId, "chatId":props.currChat, "recipients":[props.profileId]
+                socket.send(JSON.stringify({"msg":"","senderId":userId,"chatId":"none","recipients":["none"]}));
+
+            }
             console.log('Received message from server:', message); // This should trigger
             // props.chats((prev)=>[...prev,message]);
             if(message)
@@ -54,13 +67,14 @@ export default function(props) {
     
         wsRef.current = socket;
         setWs(socket);
-    
+        // if(socket)
+        // socket.send({type:"initialization"});
         return () => {
             if (wsRef.current) {
                 wsRef.current.close();
             }
         };
-    }, []);
+    }, [props.profileId]);
     
 
     async function getUserNameById(receiver) {
@@ -206,12 +220,45 @@ export default function(props) {
         if (event.key === "Enter")
             handleSubmit();
     }
+    const [startCall, setStartCall] = useState(false);
+    function handleAudioCall() {
+        setStartCall(prev=>!prev);
+    }
+    const [videoOn, setVideoOn] = useState(false);
+    function handleVideoCall() {
+        setStartCall(prev=>!prev);
+        setVideoOn(prev=>!prev);
+    }
+    const [incomingCall, setIncomingCall] = useState(null);
 
+    // Example of how you might set the incoming call user ID
+    useEffect(() => {
+        // This could be triggered by a websocket event or similar
+        const onIncomingCall = (callerId) => {
+            setIncomingCall(callerId); // Set the incoming caller's ID
+        };
+
+        // Simulate an incoming call for demonstration
+        setTimeout(() => onIncomingCall('remoteUserIdExample'), 5000);
+
+        return () => {
+            // Clean up any event listeners if needed
+        };
+    }, []);
+    // useEffect(()=>{
+    //     if(userId==null)
+    //         router.push("/login");
+    // },[userId])
     return (
         <div className="bg-slate-800 flex flex-col h-full p-1 m-1 rounded-md">
             {console.log(processedChats)}
             {console.log(props)}
-            {props.currChat!="" && <Profile currDisplayUser={currDisplayUser} />}
+            {props.currChat!="" && <Profile currDisplayUser={currDisplayUser} handleAudioCall={handleAudioCall} handleVideoCall={handleVideoCall}/>}
+            {startCall && <CallComponent userId={props.userId} profileId={props.profileId} videoOn={videoOn} />}
+            {incomingCall && (
+                <IncomingCallComponent localUserId={props.userId} remoteUserId={incomingCall} />
+            )} 
+            {console.log(props)}
             <PerfectScrollbar>
             {/* <h1>{props.currChat}</h1> */}
             {/* {console.log(updatedChat)}
@@ -244,6 +291,21 @@ export default function(props) {
                     Send
                 </button>
             </div>
+              <style jsx>{`
+        .transition-container {
+          position: relative;
+          overflow: hidden;
+        }
+        .fade-in {
+          opacity: 0;
+          animation: fadeIn 0.5s forwards;
+        }
+        @keyframes fadeIn {
+          to {
+            opacity: 1;
+          }
+        }
+      `}</style>
         </div>
     );
 }

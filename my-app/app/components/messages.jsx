@@ -57,11 +57,12 @@ export default function (props) {
                 
                 {props.chats?.map((msg, index) => {
                     // Check if the message sender is the current user
-                    if (msg.sender === props.userId) {
+                    if(toString(msg.msg).length>1)
+                   { if (msg.sender === props.userId) {
                         return <MyMessage key={index} msg={msg.msg} />;
                     } else {
                         return <OtherMessage key={index} msg={msg.msg} />;
-                    }
+                    }}
                 })}
     
                 {/* Dummy div to ensure smooth scrolling to bottom */}

@@ -6,6 +6,7 @@ import Split from "react-split";
 import React, { useContext, useEffect, useState } from "react";
 import { auth } from "./firebase";  // Import the auth instance
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { motion } from 'framer-motion';
 import { useRouter } from "next/navigation";
 import { UserContext, UserProvider, useUser } from "./userContext";
 
@@ -290,9 +291,21 @@ async function getUserNameById(receiver) {
            chats={chats} userId={user != null ? user?.uid : ""} 
           //  currChat={currChat}
           />
-          {searchUser && <SearchUser handleSearch={handleSearch}
+          {searchUser && 
+          (<motion.div
+          key="A"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5 }}
+          
+        >
+          
+          <SearchUser handleSearch={handleSearch}
           searchAnswers={availableUsers} 
-          searchChat={searchChat}/>}
+          searchChat={searchChat}/>
+          </motion.div>
+          )}
           {
             newGroup && <NewGroup processedChats={processedChats}
             userId={user != null ? user?.uid : ""}/>

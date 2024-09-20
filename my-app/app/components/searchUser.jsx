@@ -11,7 +11,7 @@ export default function(props){
         props.handleSearch(e.target.value);
     }
     return (
-        <div className="h-full m-2 p-2 w-1/4 bg-slate-900 flex flex-col items-center ">
+        <div className="h-full m-2 p-2  bg-slate-900 flex flex-col items-center w-96 py-10">
             <TextField id="outlined-basic" label="Username" 
                 value={search}
                 // onChange={(e)=>setSearch(e.target.value)}
