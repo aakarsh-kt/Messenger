@@ -74,12 +74,12 @@ export default function(props) {
             if (userDoc.exists()) {
                 // Extract and return the user's name from the document data
                 const userData = userDoc.data();
-                console.log(userDoc.id);
+                // console.log(userDoc.id);
                 const id = userDoc.id;
                 const name = userData.name;
                 const pic = userData.profilePicture;
                 const pair = {"id":id, "name": name, "pic": pic };
-                console.log(pic)
+                // console.log(pic)
                 return pair;
             } else {
                 console.log("No such user!");
@@ -121,7 +121,7 @@ export default function(props) {
             try {
                 // Await the result of the async function getUserNameById
                 const updatedUser = await getUserNameById(props.profileId);
-                console.log(updatedUser);
+                // console.log(updatedUser);
     
                 // Set the fetched user as the current display user
                 setCurrDisplayUser(updatedUser);
@@ -146,7 +146,8 @@ export default function(props) {
 
         props.chats.map((ch)=>{
             if(ch.chatId==props.currChat)
-               { console.log("Bingo")
+               {
+                //  console.log("Bingo")
                 setUpdatedChat(ch.data.chat)
                }
         })
@@ -157,13 +158,13 @@ export default function(props) {
         if(wsRef.current)
         {
            
-        console.log(props.profileId);
+        // console.log(props.profileId);
         const serveMsg={"msg":currMsg, "senderId":userId, "chatId":props.currChat, "recipients":[props.profileId]}
         ws.send(JSON.stringify(serveMsg));
         // setProcessedChats([...processedChats,temp]);
     }
     const temp = { "msg": currMsg, "sender": userId };
-    console.log("Now adding",temp);
+    // console.log("Now adding",temp);
  
     if(temp.msg.length>0)
     {   
@@ -171,7 +172,7 @@ export default function(props) {
         
         setUpdatedChat((prev)=>[...prev,temp]);
         }
-    console.log(updatedChat)
+    // console.log(updatedChat)
     addMessageToChat(props.currChat,currMsg,userId);
         // setMessages(messages.concat(temp));
         setCurrMsg("");
@@ -180,7 +181,7 @@ export default function(props) {
     }
     async function addMessageToChat (chatId, messageText, senderId) {
         try {
-            console.log("I am here")
+            // console.log("I am here")
           // Reference to the specific chat document
           const chatRef = doc(db, "Chats", chatId);
       
@@ -209,14 +210,14 @@ export default function(props) {
     return (
         <div className="bg-slate-800 flex flex-col h-full p-1 m-1 rounded-md">
             {console.log(processedChats)}
-            {console.log(props.chats)}
+            {console.log(props)}
             {props.currChat!="" && <Profile currDisplayUser={currDisplayUser} />}
             <PerfectScrollbar>
             {/* <h1>{props.currChat}</h1> */}
-            {console.log(updatedChat)}
-                {console.log(props.currChat)}
+            {/* {console.log(updatedChat)}
+                {console.log(props.currChat)} */}
                {props.currChat!=""? 
-            <div className="flex-grow overflow-auto  ">
+            <div className="flex-grow overflow-auto  h-full">
                <Messages messages={processedChats} 
                 userId={userId}
                 chats={updatedChat}

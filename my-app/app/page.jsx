@@ -1,8 +1,12 @@
-// "use client"
+"use client"
 import React from "react"
 // import { UserProvider } from './userContext';
 import './globals.css'
 import App from "./App.jsx"
+import { useState } from "react";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { useEffect } from "react";
+import { UserProvider } from "./userContext";
 // import { getAuth, onAuthStateChanged } from "firebase/auth";
 // import { collection, getDocs, query, where } from "firebase/firestore";
 // import { db } from "./firebase";
@@ -37,13 +41,22 @@ export default function(){
 
   //   getDocumentsByQuery("Users", "email", "==", user?.email);
   // }, [user]);
+  const [user, setUser] = useState("");
+  const auth = getAuth();  
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
 
+    // console.log(userFirebase);
+    return () => unsubscribe();
+  }, []);
   return(
     
-    // <UserProvider user={playerInfo} setUser={setPlayerInfo}>
+    <UserProvider user={user} setUser={setUser}>
     <div>
       <App/>
     </div>
-    // </UserProvider>
+     </UserProvider>
   )
 }

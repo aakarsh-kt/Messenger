@@ -15,12 +15,7 @@ import Link from "next/link.js";
 import { UserContext,useUser } from '../userContext';
 import {  useRouter } from "next/navigation.js";
 export default function () {
-  // const navigate = useNavigate();
-  
-  // const {user, setUser} = useContext(UserContext);
-
-  // if(user==null)
-  //   console.log("Empty Box")
+ 
   const userContext=useUser();
   const [user,setUser]=React.useState(userContext);
   const router=useRouter();
@@ -28,9 +23,7 @@ export default function () {
     setUser(userContext);
   
 },[userContext])
-  //   if(useUser() && user==null)
-  //       setUser(useUser());
-  // const {user,setUser}=useContext(UserContext);
+
   const signInWithGoogle = () => {
     signInWithPopup(auth, provider)
       .then((result) => {
@@ -69,18 +62,6 @@ export default function () {
       };
     });
   }
-  // useEffect(() => {
-  //   // This will only run on the client side
-  //   console.log(router.pathname);
-  // }, [router]);
-  // React.useEffect(() => {
-  //   const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-  //     // console.log(currentUser.email);
-  //     setUser(currentUser);
-
-  //   });
-  //   return () => unsubscribe();
-  // }, []);
 
   return (
     <div className="w-screen  items-center flex flex-col justify-between h-screen bg-slate-600">
@@ -135,14 +116,7 @@ export default function () {
           </Button>
           </Link>
       </div>
-      {/* <Button 
-      // onClick={logout}
-       type="primary" className="">
-        Logout
-      </Button> */}
-
-  
-      {/* </div> */}
+      
     </div>
   );
 }

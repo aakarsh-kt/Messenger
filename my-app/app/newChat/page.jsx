@@ -1,11 +1,12 @@
 "use client"
 
 import React from "react"
-import navbar from "../components/navbar"
+
 import Navbar from "../components/navbar"
 import { useUser } from "../userContext"
 import { useState } from "react"
 import { useEffect } from "react"
+import SearchUser from "../components/searchUser"
 
 export default function(){
     const userContext=useUser();
@@ -14,7 +15,9 @@ export default function(){
         setUser(userContext);
     },[userContext])
     return (
-        <Navbar user={user}/>
-
+        <div className="flex flex-col ">
+        <Navbar />
+        <SearchUser/>
+        </div>
     )
 }

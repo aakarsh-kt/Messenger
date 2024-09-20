@@ -52,7 +52,7 @@ export default function (props) {
             // containerRef={(el) => {scrollableRef.current = el}} 
             // onScrollY={handleScroll}
         >
-            <div className="bg-black rounded-2xl h-full m-2 p-2">
+            <div className="rounded-2xl h-full m-2 p-2">
                 {console.log(props.chats)}
                 
                 {props.chats?.map((msg, index) => {
