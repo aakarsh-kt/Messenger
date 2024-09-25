@@ -1,5 +1,7 @@
-# System Design of Texter
+### My Introduction
+My name is Akarsh Katiyar, and I am currently in my third year pursuing a Bachelor's degree in Computer Science at IIT Jodhpur.
 
+# System Design of Texter
 ## 1. Overview
 
 ### 1.1 Purpose
